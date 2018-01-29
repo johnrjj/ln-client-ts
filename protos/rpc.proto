@@ -1,6 +1,7 @@
 syntax = "proto3";
 
-import "google/api/annotations.proto";
+// uncomment below to generate static files
+//import "google/api/annotations.proto";
 
 package lnrpc;
 /**
