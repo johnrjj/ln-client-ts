@@ -22,7 +22,7 @@ const lightning = new (lnrpc as any).Lightning('localhost:10009', credentials);
 
 const PROTO_PATH = path.resolve(__dirname, '../protos/rpc.proto')
 const client = caller('localhost:10009', PROTO_PATH, 'Lightning', credentials)
-client.getInfo({ name: 'Bob' }, (err: any, res: any) => {
+client.getInfo({}, (err: any, res: any) => {
   console.log(res)
   console.log(err)
   console.log('reeee');

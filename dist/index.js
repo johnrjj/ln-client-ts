@@ -16,7 +16,7 @@ console.log(lnrpcDescriptor.lnrpc);
 var lightning = new lnrpc.Lightning('localhost:10009', credentials);
 var PROTO_PATH = path.resolve(__dirname, '../protos/rpc.proto');
 var client = caller('localhost:10009', PROTO_PATH, 'Lightning', credentials);
-client.getInfo({ name: 'Bob' }, function (err, res) {
+client.getInfo({}, function (err, res) {
     console.log(res);
     console.log(err);
     console.log('reeee');
