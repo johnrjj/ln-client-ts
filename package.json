@@ -1,0 +1,20 @@
+{
+  "name": "ln-client-ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "gen-ts-proto": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --js_out=import_style=commonjs,binary:generated --ts_out=service=true:generated -I ./proto proto/**/*.proto"
+  },
+  "devDependencies": {
+    "@types/google-protobuf": "^3.2.7",
+    "@types/node": "^9.4.0",
+    "@types/protobufjs": "^6.0.0",
+    "ts-protoc-gen": "^0.4.0"
+  },
+  "dependencies": {
+    "google-protobuf": "^3.5.0",
+    "grpc": "^1.8.4",
+    "grpc-caller": "^0.4.0"
+  }
+}
