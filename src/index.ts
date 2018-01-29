@@ -28,6 +28,16 @@ client.getInfo({}, (err: any, res: any) => {
   console.log('reeee');
 })
 
+const { call, res } = client.subscribeChannelGraph({});
+call.on('data', (msg: any) => console.log('data', msg));
+call.on('end', (msg: any) => console.log('end', msg));
+call.on('status', (msg: any) => console.log('status', msg));
+
+
+res
+  .then((res: any) => console.log('then') || console.log(res))
+  .catch((err: any) => console.log('catch') || console.error(err))
+
 // const client = caller('localhost:10009', services, 'lnrpc', credentials);
 // client.getInfo({}).then((x: any) => console.log(x)).catch((e: any) => console.log(e));
 

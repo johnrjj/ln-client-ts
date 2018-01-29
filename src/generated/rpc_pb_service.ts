@@ -2,7 +2,7 @@
 // file: rpc.proto
 
 import * as rpc_pb from "./rpc_pb";
-import * as google_api_annotations_pb from "./google/api/annotations_pb";
+// import * as google_api_annotations_pb from "./google/api/annotations_pb";
 export class WalletUnlocker {
   static serviceName = "lnrpc.WalletUnlocker";
 }

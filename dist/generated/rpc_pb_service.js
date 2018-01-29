@@ -3,6 +3,7 @@
 // file: rpc.proto
 Object.defineProperty(exports, "__esModule", { value: true });
 var rpc_pb = require("./rpc_pb");
+// import * as google_api_annotations_pb from "./google/api/annotations_pb";
 var WalletUnlocker = /** @class */ (function () {
     function WalletUnlocker() {
     }
