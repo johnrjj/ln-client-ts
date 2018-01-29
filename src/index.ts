@@ -14,7 +14,7 @@ import * as caller from 'grpc-caller';
 
 const lndCert = fs.readFileSync("/root/.lnd/tls.cert");
 const credentials = grpc.credentials.createSsl(lndCert);
-const lnrpcDescriptor = grpc.load("protos/rpc.proto");
+const lnrpcDescriptor = grpc.load("../protos/rpc.proto");
 const lnrpc = lnrpcDescriptor.lnrpc;
 console.log(lnrpcDescriptor);
 console.log(lnrpcDescriptor.lnrpc);
