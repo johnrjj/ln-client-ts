@@ -21,13 +21,14 @@ client.getInfo({}, function (err, res) {
     console.log(err);
     console.log('reeee');
 });
-var _a = client.subscribeChannelGraph({}), call = _a.call, res = _a.res;
+var call = client.subscribeChannelGraph({});
+console.log(call);
 call.on('data', function (msg) { return console.log('data', msg); });
 call.on('end', function (msg) { return console.log('end', msg); });
 call.on('status', function (msg) { return console.log('status', msg); });
-res
-    .then(function (res) { return console.log('then') || console.log(res); })
-    .catch(function (err) { return console.log('catch') || console.error(err); });
+// res
+//   .then((res: any) => console.log('then') || console.log(res))
+//   .catch((err: any) => console.log('catch') || console.error(err))
 // const client = caller('localhost:10009', services, 'lnrpc', credentials);
 // client.getInfo({}).then((x: any) => console.log(x)).catch((e: any) => console.log(e));
 // lightning.getInfo({}, (err: any, response: GetInfoResponse.) => {
