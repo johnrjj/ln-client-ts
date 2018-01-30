@@ -15,10 +15,10 @@ export class LNRepositoryPlexer extends Duplex {
     // const lndCert = fs.readFileSync('../tls.cert');
 
     const credentials = grpc.credentials.createSsl(lndCert);
-    const lnrpcDescriptor = grpc.load('../protos/rpc.proto');
-    const lnrpc = lnrpcDescriptor.lnrpc;
-    const lightning = new (lnrpc as any).Lightning('localhost:10009', credentials);
-    const PROTO_PATH = path.resolve(__dirname, '../protos/rpc.proto');
+    // const lnrpcDescriptor = grpc.load('../protos/rpc.proto');
+    // const lnrpc = lnrpcDescriptor.lnrpc;
+    // const lightning = new (lnrpc as any).Lightning('localhost:10009', credentials);
+    const PROTO_PATH = path.resolve(__dirname, 'protos/rpc.proto');
     const client = caller('localhost:10009', PROTO_PATH, 'Lightning', credentials);
     this.client = client;
   }
