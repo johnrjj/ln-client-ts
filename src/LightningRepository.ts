@@ -67,7 +67,7 @@ export class LNRepositoryPlexer extends Duplex {
 
     // call.write({ dest: dest_pubkey_bytes, amt: 6969 });
 
-    rpcCall.end();
+    // rpcCall.end();
 
     // res
     //   .then((x: any) => console.log('sendpayment promise resolved', res))
