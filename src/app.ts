@@ -15,12 +15,19 @@ const PORT = 8000;
   const info = await lnRepository.getInfo();
   console.log('getinfo from lnrepo', info);
 
-  const subStart = await lnRepository.subscribeInvoices();
-  console.log('substart from lnrepo', subStart);
+  await lnRepository.subscribeInvoices(); // returns undefined
+  // console.log('substart from lnrepo', subStart);
   lnRepository.on('ln.subscribeInvoices.data', (msg => console.log('ln.subscribeInvoices.data', msg)))
 
-  const didSend = await lnRepository.sendPayment();
-  console.log('sendPayment from lnrepo', didSend);
+  const tx1 = 'lntb10n1pd8zqj5pp5x7696xn4slkj877qwp3nlmc9ynz08nnuaa5u49vwegmep9tg7ruqdz80v3xjg36ygurwdehxa3rzvfd8ycngdedxsuxzepdv9jrxcedvdjngvf3xqmxzce4v33zylgcqzys96rzl7qc3yuwzpsl50lhc2eu7w3y4rudc0wltskzp3hkvq3ezc642ekdedppjvghm8t7d8udq0df8rx9klhkjscuqw6vpjwwaesfpugqrwdqv3';
+  const tx2 = 'lntb20n1pd8zqn2pp58cjglt9pzqpve8jrf2x3684st735zxpc78u2ffsjcu4rh8573ugqdz80v3xjg36yfsnvcejxycn2dedxf3kxcfdx3jngvfd8ycrqv3dxsmnsenxvy6xvdrrxpjzylgcqzysrqql7n20ja2jey2h7ksg3phjus3nthz9ap8u5awugcvg9urf5duzsgmqjn02cne26xxflvwrd6u0whxc0f4ucr5ceq9aggm09xxd95qqyvccu5';
+  const tx1res = await lnRepository.payInvoice(tx1);
+  const tx2res = await lnRepository.payInvoice(tx2);
+
+  console.log(tx1res);
+  console.log(tx2res);
+
+  // console.log('sendPayment from lnrepo', didSend);
 
   const app = express();
   const expressWs = expressWsFactory(app);

@@ -18,6 +18,17 @@ export interface GetInfoReponse {
   uris: Array<string>;
 };
 
+export interface SendPaymentResponse {
+  payment_error: string;
+  payment_preimage: Buffer;
+  payment_route: {
+    total_time_lock: number;
+    total_fees: string;
+    total_amt: string;
+    hops: Array<any>
+  }
+};
+
 export class LNRepositoryPlexer extends Duplex {
   client: any;
   constructor() {
@@ -36,58 +47,28 @@ export class LNRepositoryPlexer extends Duplex {
     return this.client.getInfo({});
   }
 
-  async sendPayment() {
-
-    var dest_pubkey = 'ss';
-    var dest_pubkey_bytes = byteBuffer.fromHex(dest_pubkey);
-    const rpcCall = this.client.sendPayment({});
-
-    rpcCall.on('data', (msg: any) => {
-      console.log('sendPayment:on.data', msg);
-      this.emit('ln.sendPayment.data', msg);
+  async payInvoice(invoice: string): Promise<SendPaymentResponse> {
+    const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
+      const rpcCall = this.client.sendPayment({});
+      rpcCall.on('data', (msg: SendPaymentResponse) => {
+        console.log('sendPayment:on.data', msg);
+        // emit data event
+        this.emit('ln.sendPayment.data', msg);
+        // clean up rpc
+        rpcCall.end();
+        // resolve promise
+        return msg.payment_error !== '' ? reject(msg.payment_error) : accept(msg);
+      });
+      rpcCall.on('end', () => {
+        // The server has finished
+        this.emit('ln.sendPayment.end');
+        console.log("(LNDUPLEX):ln.sendPayment.end");
+      });
+      rpcCall.write({ payment_request: invoice });
     });
-    rpcCall.on('end', () => {
-      // The server has finished
-      this.emit('ln.sendPayment.end');
-      console.log("ln.sendPayment.end");
-    });
-
-
-    console.log('1inside sendpayment, call and res: ', rpcCall);
-    // console.log('1rest of obj', rest);
-    // call.write({ dest: dest_pubkey_bytes, amt: 6969 });
-    const sampleInvoice = 'lntb10n1pd8plq3pp5ernvlhrxtdcj9uxe8f3sx20zgk6l99fy4q0leech5umr0lv4m0yqdz80v3xjg36ygekzdn9x4jkxcfdv3jrqwfdxsukgc3d8ymrscedv43xzenpxqerxvn98yejylgcqzysu8w4fj9mklm7g460ncu9xpql6evvzr8hc8uxyr3sy8c2pyvgecfzy5gwr99s47q5yk2maqz8hn2z325urmgdn3kqqhhnrtruertfm0gph7aw40';
-    const x = rpcCall.write({ payment_request: sampleInvoice });
-    console.log(x);
-
-    // console.log('2inside sendpayment, call and res: ', call, res);
-    // console.log('2rest of obj', rest);
-
-    // figure out how all this works together....
-
-    // call.write({ dest: dest_pubkey_bytes, amt: 6969 });
-
-    // rpcCall.end();
-
-    // res
-    //   .then((x: any) => console.log('sendpayment promise resolved', res))
-    //   .catch((e: any) => console.log('sendpayment promise error', e));
-    // ... write stuff to call
-    // call.write({ 
-    //     dest: <YOUR_PARAM>,
-    //     dest_string: <YOUR_PARAM>,
-    //     amt: <YOUR_PARAM>,
-    //     payment_hash: <YOUR_PARAM>,
-    //     payment_hash_string: <YOUR_PARAM>,
-    //     payment_request: <YOUR_PARAM>,
-    //   });
-
-    // { 
-    //     payment_error: <string>,
-    //     payment_preimage: <bytes>,
-    //     payment_route: <Route>,
-    // }
-    return null;
+    return promise;
+    // var dest_pubkey = 'ss';
+    // var dest_pubkey_bytes = byteBuffer.fromHex(dest_pubkey);
   }
 
   async subscribeInvoices(): Promise<void> {
@@ -101,7 +82,6 @@ export class LNRepositoryPlexer extends Duplex {
     rpcCall.on('data', (msg: any) => {
       this.emit('ln.subscribeInvoices.status', msg);
     });
-
   }
 
   _read() { /* no-op */ }
