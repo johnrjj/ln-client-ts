@@ -29,6 +29,11 @@ export interface SendPaymentResponse {
   }
 };
 
+export interface AddInvoiceResponse {
+  r_hash: string;
+  payment_request: string;
+}
+
 export class LNRepositoryPlexer extends Duplex {
   client: any;
   constructor() {
@@ -42,7 +47,6 @@ export class LNRepositoryPlexer extends Duplex {
     this.client = client;
   }
 
-  // works
   async getInfo(): Promise<GetInfoReponse> {
     return this.client.getInfo({});
   }
@@ -67,8 +71,10 @@ export class LNRepositoryPlexer extends Duplex {
       rpcCall.write({ payment_request: invoice });
     });
     return promise;
-    // var dest_pubkey = 'ss';
-    // var dest_pubkey_bytes = byteBuffer.fromHex(dest_pubkey);
+  }
+
+  async addInvoice(amountInSatoshis: number): Promise<AddInvoiceResponse> {
+    return this.client.addInvoice({ value: amountInSatoshis });
   }
 
   async subscribeInvoices(): Promise<void> {
@@ -90,13 +96,9 @@ export class LNRepositoryPlexer extends Duplex {
     // Pass the msg on to downstream users
     console.log('LN duplex _write, recevied msg', msg)
     this.push(msg);
-    // if (!msg.productId || msg.productId !== this.product) {
-    //   return callback();
-    // }
     // switch (msg && msg.type) {
-    //   case 'trade':
-    //     // this.addTradeMessageToHistory(msg);
-    //     // this.emit('OrderbookHistory.update', this.getCandleFromTradeMessage(msg as TradeMessage)); //this.getCandleFromTradeMessage(msg as TradeMessage)
+    //   case 'test':
+    //     do stuff then emit again
     //     break;
     //   default:
     //     break;
