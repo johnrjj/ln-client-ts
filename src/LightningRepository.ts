@@ -40,31 +40,34 @@ export class LNRepositoryPlexer extends Duplex {
 
     var dest_pubkey = 'ss';
     var dest_pubkey_bytes = byteBuffer.fromHex(dest_pubkey);
-    const { call, res, ...rest } = this.client.sendPayment({});
-    console.log('1inside sendpayment, call and res: ', call, res);
-    console.log('1rest of obj', rest);
+    const rpcCall = this.client.sendPayment({});
+
+    rpcCall.on('data', (msg: any) => {
+      console.log('sendPayment:on.data', msg);
+      this.emit('ln.sendPayment.data', msg);
+    });
+    rpcCall.on('end', () => {
+      // The server has finished
+      this.emit('ln.sendPayment.end');
+      console.log("ln.sendPayment.end");
+    });
+
+
+    console.log('1inside sendpayment, call and res: ', rpcCall);
+    // console.log('1rest of obj', rest);
     // call.write({ dest: dest_pubkey_bytes, amt: 6969 });
     const sampleInvoice = 'lntb10n1pd8plq3pp5ernvlhrxtdcj9uxe8f3sx20zgk6l99fy4q0leech5umr0lv4m0yqdz80v3xjg36ygekzdn9x4jkxcfdv3jrqwfdxsukgc3d8ymrscedv43xzenpxqerxvn98yejylgcqzysu8w4fj9mklm7g460ncu9xpql6evvzr8hc8uxyr3sy8c2pyvgecfzy5gwr99s47q5yk2maqz8hn2z325urmgdn3kqqhhnrtruertfm0gph7aw40';
-    const x = call.write({ payment_request: sampleInvoice });
+    const x = rpcCall.write({ payment_request: sampleInvoice });
     console.log(x);
 
-    console.log('2inside sendpayment, call and res: ', call, res);
-    console.log('2rest of obj', rest);
+    // console.log('2inside sendpayment, call and res: ', call, res);
+    // console.log('2rest of obj', rest);
 
     // figure out how all this works together....
-    // call.on('data', (msg: any) => {
-    //   console.log('sendPayment:on.data', msg);
-    //   this.emit('ln.sendPayment.data', msg);
-    // });
-    // call.on('end', () => {
-    //   // The server has finished
-    //   this.emit('ln.sendPayment.end');
-    //   console.log("ln.sendPayment.end");
-    // });
 
     // call.write({ dest: dest_pubkey_bytes, amt: 6969 });
 
-    // call.end();
+    rpcCall.end();
 
     // res
     //   .then((x: any) => console.log('sendpayment promise resolved', res))
@@ -84,7 +87,7 @@ export class LNRepositoryPlexer extends Duplex {
     //     payment_preimage: <bytes>,
     //     payment_route: <Route>,
     // }
-    return res;
+    return null;
   }
 
   async subscribeInvoices(): Promise<void> {
