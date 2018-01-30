@@ -20,7 +20,7 @@ export class LNRepositoryPlexer extends Duplex {
   }
 
   async getInfo(): Promise<any> {
-    this.client.getInfo({});
+    return this.client.getInfo({});
   }
 
   async sendPayment() {
@@ -42,9 +42,9 @@ export class LNRepositoryPlexer extends Duplex {
 
     // call.end();
 
-    res
-      .then((x: any) => console.log('sendpayment promise resolved', res))
-      .catch((e: any) => console.log('sendpayment promise error', e));
+    // res
+    //   .then((x: any) => console.log('sendpayment promise resolved', res))
+    //   .catch((e: any) => console.log('sendpayment promise error', e));
     // ... write stuff to call
     // call.write({ 
     //     dest: <YOUR_PARAM>,
@@ -74,6 +74,7 @@ export class LNRepositoryPlexer extends Duplex {
     rpcCall.on('data', (msg: any) => {
       this.emit('ln.subscribeInvoices.status', msg);
     });
+
   }
 
   _read() { /* no-op */ }
