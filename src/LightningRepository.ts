@@ -13,11 +13,7 @@ export class LNRepositoryPlexer extends Duplex {
 
     const lndCert = fs.readFileSync('/root/.lnd/tls.cert');
     // const lndCert = fs.readFileSync('../tls.cert');
-
     const credentials = grpc.credentials.createSsl(lndCert);
-    // const lnrpcDescriptor = grpc.load('../protos/rpc.proto');
-    // const lnrpc = lnrpcDescriptor.lnrpc;
-    // const lightning = new (lnrpc as any).Lightning('localhost:10009', credentials);
     const PROTO_PATH = path.resolve(__dirname, '../protos/rpc.proto');
     const client = caller('localhost:10009', PROTO_PATH, 'Lightning', credentials);
     this.client = client;
@@ -28,18 +24,19 @@ export class LNRepositoryPlexer extends Duplex {
   }
 
   async sendPayment() {
-    const { call, res } = this.client.sendPayment({})
+    const { call, res } = this.client.sendPayment({});
+    console.log(call, res);
 
     // figure out how all this works together....
-    call.on('data', (msg: any) => {
-      console.log('sendPayment:on.data', msg);
-      this.emit('ln.sendPayment.data', msg);
-    });
-    call.on('end', () => {
-      // The server has finished
-      this.emit('ln.sendPayment.end');
-      console.log("ln.sendPayment.end");
-    });
+    // call.on('data', (msg: any) => {
+    //   console.log('sendPayment:on.data', msg);
+    //   this.emit('ln.sendPayment.data', msg);
+    // });
+    // call.on('end', () => {
+    //   // The server has finished
+    //   this.emit('ln.sendPayment.end');
+    //   console.log("ln.sendPayment.end");
+    // });
 
     // call.write({ dest: dest_pubkey_bytes, amt: 6969 });
 
