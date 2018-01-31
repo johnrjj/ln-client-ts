@@ -1,3 +1,4 @@
 node_modules
 dist
 tls.cert
+.DS_Store

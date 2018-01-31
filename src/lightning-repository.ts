@@ -5,6 +5,35 @@ import * as byteBuffer from 'bytebuffer';
 import * as caller from 'grpc-caller';
 import { Duplex } from 'stream';
 
+export interface DecodePayReqResponse {
+  destination: string;
+  payment_hash: string;
+  num_satoshis: string;
+}
+
+export interface Invoice {
+  memo: string;
+  receipt: Buffer;
+  r_preimage: Buffer;
+  r_hash: Buffer;
+  value: string;
+  settled: boolean;
+  creation_date: string;
+  settle_date: string;
+  payment_request: string;
+  description_hash: Buffer;
+  expiry: string;
+};
+
+export type InvoiceStreamingMessage = Invoice;
+
+export interface LookupInvoiceRequest {
+  r_hash_str?: string;
+  r_hash?: Buffer;
+}
+
+export type LookupInvoiceResponse = Invoice;
+
 export interface GetInfoReponse {
   alias: string;
   num_pending_channels: number;
@@ -51,11 +80,20 @@ export class LNRepositoryPlexer extends Duplex {
     return this.client.getInfo({});
   }
 
+  async decodePayReq(payReq: string): Promise<DecodePayReqResponse> {
+    return this.client.decodePayReq({
+      pay_req: payReq,
+    });
+  }
+
+  async lookupInvoice(options: LookupInvoiceRequest): Promise<LookupInvoiceResponse> {
+    return this.client.lookupInvoice({ ...options });
+  }
+
   async payInvoice(invoice: string): Promise<SendPaymentResponse> {
     const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
       const rpcCall = this.client.sendPayment({});
       rpcCall.on('data', (msg: SendPaymentResponse) => {
-        console.log('sendPayment:on.data', msg);
         // emit data event
         this.emit('ln.sendPayment.data', msg);
         // clean up rpc
@@ -79,13 +117,13 @@ export class LNRepositoryPlexer extends Duplex {
 
   async subscribeInvoices(): Promise<void> {
     const rpcCall = this.client.subscribeInvoices({});
-    rpcCall.on('data', (msg: any) => {
+    rpcCall.on('data', (msg: InvoiceStreamingMessage) => {
       this.emit('ln.subscribeInvoices.data', msg);
     });
     rpcCall.on('end', (msg: any) => {
       this.emit('ln.subscribeInvoices.end', msg);
     });
-    rpcCall.on('data', (msg: any) => {
+    rpcCall.on('status', (msg: any) => {
       this.emit('ln.subscribeInvoices.status', msg);
     });
   }
@@ -93,8 +131,8 @@ export class LNRepositoryPlexer extends Duplex {
   _read() { /* no-op */ }
 
   _write(msg: any, encoding: string, callback: () => void): void {
-    // Pass the msg on to downstream users
     console.log('LN duplex _write, recevied msg', msg)
+    // Pass the msg on to downstream users
     this.push(msg);
     // switch (msg && msg.type) {
     //   case 'test':
