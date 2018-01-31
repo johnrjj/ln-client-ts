@@ -1,5 +1,7 @@
 import * as express from 'express';
 import * as expressLogger from 'morgan';
+import { ConsoleLoggerFactory, Logger } from './logger';
+
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as expressWsFactory from 'express-ws';
@@ -11,6 +13,7 @@ const PORT = 8000;
   process.on('unhandledRejection', err => {
     throw err;
   });
+  const logger: Logger = ConsoleLoggerFactory({ level: 'debug' });//config.LOG_LEVEL });
 
   const lnRepository = new LNRepositoryPlexer();
 
