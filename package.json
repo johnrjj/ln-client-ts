@@ -29,6 +29,9 @@
     "typescript": "^2.6.2"
   },
   "dependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/uuid": "^3.4.3",
+    "aws-sdk": "^2.188.0",
     "bytebuffer": "^5.0.1",
     "cors": "^2.8.4",
     "express": "^4.16.2",
@@ -40,6 +43,7 @@
     "morgan": "^1.9.0",
     "protobufjs": "^6.8.4",
     "qrcode": "^1.2.0",
+    "uuid": "^3.2.1",
     "winston": "^2.4.0"
   },
   "engines": {

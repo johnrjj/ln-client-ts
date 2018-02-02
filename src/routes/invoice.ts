@@ -1,9 +1,9 @@
 import * as bodyParser from 'body-parser';
 import * as qrcode from 'qrcode';
 import { Router } from 'express';
-import { LNRepositoryPlexer } from '../lightning-repository';
+import { LightNetworkRepository } from '../lnd-facade';
 
-const invoiceRouterFactory = (lnRepository: LNRepositoryPlexer) => {
+const invoiceRouterFactory = (lnRepository: LightNetworkRepository) => {
   const router = Router();
   router.use(bodyParser.json({ type: '*/*' }));
   router.use(bodyParser.urlencoded({ extended: true }));
@@ -13,14 +13,14 @@ const invoiceRouterFactory = (lnRepository: LNRepositoryPlexer) => {
   });
 
   router.get('/invoice/:invoice', async (req, res) => {
-    const { invoice: invoiceRHashString } = req.params;
-    const invoice = await lnRepository.lookupInvoice({ r_hash_str: invoiceRHashString });
-    return res.json(invoice);
+    const { invoice } = req.params;
+    const invoiceMetadata = await lnRepository.decodePayReq(invoice);
+    return res.json(invoiceMetadata);
   });
 
   router.post('/invoice', async (req, res) => {
     const { msatoshi, /*currency, amount, description, expiry, metadata */ } = req.body;
-    const invoice = await lnRepository.addInvoice(msatoshi);
+    const invoice = await lnRepository.createInvoice(msatoshi);
     return res.status(201).json(invoice);
   })
 

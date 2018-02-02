@@ -5,8 +5,9 @@ import { ConsoleLoggerFactory, Logger } from './logger';
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as expressWsFactory from 'express-ws';
-import { LNRepositoryPlexer, InvoiceStreamingMessage } from './lightning-repository';
+import { LightningNetworkClient, InvoiceStreamingMessage } from './lightning-repository';
 import { invoiceRouterFactory } from './routes/invoice';
+import { LightNetworkRepository } from './lnd-facade';
 
 const PORT = 8000;
 (async () => {
@@ -15,10 +16,12 @@ const PORT = 8000;
   });
   const logger: Logger = ConsoleLoggerFactory({ level: 'debug' });//config.LOG_LEVEL });
 
-  const lnRepository = new LNRepositoryPlexer();
+  const lnClient = new LightningNetworkClient();
+  const paymentDatastore = null;
+  const lnRepository = new LightNetworkRepository(lnClient, paymentDatastore);
 
-  await lnRepository.subscribeInvoices();
-  lnRepository.on('ln.subscribeInvoices.data', ((msg: InvoiceStreamingMessage) => console.log('ln.subscribeInvoices.data', msg)))
+  await lnClient.subscribeInvoices();
+  lnClient.on('ln.subscribeInvoices.data', ((msg: InvoiceStreamingMessage) => console.log('ln.subscribeInvoices.data', msg)))
 
   const app = express();
   const expressWs = expressWsFactory(app);

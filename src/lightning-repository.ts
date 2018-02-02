@@ -63,7 +63,7 @@ export interface AddInvoiceResponse {
   payment_request: string;
 }
 
-export class LNRepositoryPlexer extends Duplex {
+export class LightningNetworkClient extends Duplex {
   client: any;
   constructor() {
     super({ objectMode: true, highWaterMark: 1024 });
