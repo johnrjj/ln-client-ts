@@ -35,10 +35,10 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
     return res.json(invoiceMetadata);
   });
 
-  router.post('/invoice/:invoice/qr.png', async (req, res) => {
+  router.get('/invoice/:invoice/qr.png', async (req, res) => {
     const { invoice } = req.params;
     console.log('hit the invoice qr route hope it works');
-    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => {});
+    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => { });
   });
 
   return router;
