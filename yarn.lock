@@ -123,12 +123,6 @@
   version "8.5.9"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.9.tgz#7155cfb4ae405bca4dd8df1a214c339e939109bf"
 
-"@types/protobufjs@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@types/protobufjs/-/protobufjs-6.0.0.tgz#aeabb43f9507bb19c8adfb479584c151082353e4"
-  dependencies:
-    protobufjs "*"
-
 "@types/qrcode@^0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@types/qrcode/-/qrcode-0.8.0.tgz#20dea3679ac83a9bebd0c55f747eced9511707b6"
@@ -2766,7 +2760,16 @@ promisify-call@^2.0.0:
   dependencies:
     with-callback "^1.0.2"
 
-protobufjs@*, protobufjs@^6.8.4:
+protobufjs@^5.0.0:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-5.0.2.tgz#59748d7dcf03d2db22c13da9feb024e16ab80c91"
+  dependencies:
+    ascli "~1"
+    bytebuffer "~5"
+    glob "^7.0.5"
+    yargs "^3.10.0"
+
+protobufjs@^6.8.4:
   version "6.8.4"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.8.4.tgz#183f90d1c4aca5f6b34a79eaedd0d89ad21f603b"
   dependencies:
@@ -2783,15 +2786,6 @@ protobufjs@*, protobufjs@^6.8.4:
     "@types/long" "^3.0.32"
     "@types/node" "^8.5.5"
     long "^3.2.0"
-
-protobufjs@^5.0.0:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-5.0.2.tgz#59748d7dcf03d2db22c13da9feb024e16ab80c91"
-  dependencies:
-    ascli "~1"
-    bytebuffer "~5"
-    glob "^7.0.5"
-    yargs "^3.10.0"
 
 proxy-addr@~2.0.2:
   version "2.0.2"

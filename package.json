@@ -19,7 +19,6 @@
     "@types/helmet": "^0.0.37",
     "@types/morgan": "^1.7.35",
     "@types/node": "^9.4.0",
-    "@types/protobufjs": "^6.0.0",
     "@types/qrcode": "^0.8.0",
     "@types/winston": "^2.3.7",
     "@types/ws": "^4.0.0",

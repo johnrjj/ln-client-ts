@@ -3,13 +3,14 @@ import {
   AddInvoiceResponse,
   DecodePayReqResponse,
 } from './lightning-client';
+import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository } from './dynamo';
 
 export class LightNetworkRepository {
   constructor(
     private lnClient: LightningNetworkClient,
     private accountRepository: AccountCustodianRepository
-  ) {}
+  ) { }
 
   // Create an account
   async createAccount() {

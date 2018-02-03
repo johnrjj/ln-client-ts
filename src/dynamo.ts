@@ -1,6 +1,8 @@
 import * as AWS from 'aws-sdk';
 import * as uuid from 'uuid/v4';
 import { DynamoDB } from 'aws-sdk';
+import { BigNumber } from 'bignumber.js';
+
 AWS.config.update({
   region: 'us-east-1',
   accessKeyId: 'AKIAJHYTHQUJEWSHIEQQ', //process.env.DYNAMODB_ACCESS_KEY_ID;

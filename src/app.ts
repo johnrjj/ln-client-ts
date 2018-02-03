@@ -54,4 +54,5 @@ const PORT = 8000;
   });
 
   app.listen(PORT), () => console.log(`Started on port ${PORT}`);
+  console.log('test?');
 })();
