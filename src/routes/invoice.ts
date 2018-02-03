@@ -1,9 +1,9 @@
 import * as bodyParser from 'body-parser';
 import * as qrcode from 'qrcode';
 import { Router } from 'express';
-import { LightNetworkRepository } from '../lnd-facade';
+import { LightningNetworkRepository } from '../lnd-facade';
 
-const invoiceRouterFactory = (lnRepository: LightNetworkRepository) => {
+const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
   const router = Router();
   router.use(bodyParser.json({ type: '*/*' }));
   router.use(bodyParser.urlencoded({ extended: true }));
@@ -13,9 +13,9 @@ const invoiceRouterFactory = (lnRepository: LightNetworkRepository) => {
     res.status(201).json(account);
   });
 
-  router.post('/invoice/create', async (req, res) => {
-    const { msatoshi /*currency, amount, description, expiry, metadata */ } = req.body;
-    const invoice = await lnRepository.createInvoice(msatoshi);
+  router.post('/invoice', async (req, res) => {
+    const { accountId, satoshis /*currency, amount, description, expiry, metadata */ } = req.body;
+    const invoice = await lnRepository.createInvoice(satoshis);
     return res.status(201).json(invoice);
   });
 
@@ -35,8 +35,9 @@ const invoiceRouterFactory = (lnRepository: LightNetworkRepository) => {
     return res.json(invoiceMetadata);
   });
 
-  router.post('/checkout/:invoice/qr.png', async (req, res) => {
+  router.post('/invoice/:invoice/qr.png', async (req, res) => {
     const { invoice } = req.params;
+    console.log('hit the invoice qr route hope it works');
     return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => {});
   });
 

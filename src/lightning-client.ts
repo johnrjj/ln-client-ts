@@ -5,6 +5,15 @@ import * as byteBuffer from 'bytebuffer';
 import * as caller from 'grpc-caller';
 import { Duplex } from 'stream';
 
+export interface LNClient {
+  addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse>;
+  getInfo(opts: any): Promise<any>;
+  decodePayReq(opts: any): Promise<DecodePayReqResponse>;
+  lookupInvoice(opts: any): Promise<any>;
+  sendPayment(opts: any): any;
+  subscribeInvoices: any;
+}
+
 export interface DecodePayReqResponse {
   destination: string;
   payment_hash: string;
@@ -16,7 +25,7 @@ export interface Invoice {
   receipt: Buffer;
   r_preimage: Buffer;
   r_hash: Buffer;
-  value: string;
+  value: string | number;
   settled: boolean;
   creation_date: string;
   settle_date: string;
@@ -24,6 +33,8 @@ export interface Invoice {
   description_hash: Buffer;
   expiry: string;
 }
+
+type Partial<T> = { [P in keyof T]?: T[P] };
 
 export type InvoiceStreamingMessage = Invoice;
 
@@ -64,7 +75,7 @@ export interface AddInvoiceResponse {
 }
 
 export class LightningNetworkClient extends Duplex {
-  client: any;
+  client: LNClient;
   constructor() {
     super({ objectMode: true, highWaterMark: 1024 });
 

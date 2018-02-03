@@ -6,11 +6,11 @@ import {
 import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository } from './dynamo';
 
-export class LightNetworkRepository {
+export class LightningNetworkRepository {
   constructor(
     private lnClient: LightningNetworkClient,
     private accountRepository: AccountCustodianRepository
-  ) { }
+  ) {}
 
   // Create an account
   async createAccount() {

@@ -6,7 +6,7 @@ import * as expressWsFactory from 'express-ws';
 import { BigNumber } from 'bignumber.js';
 import { LightningNetworkClient, InvoiceStreamingMessage } from './lightning-client';
 import { invoiceRouterFactory } from './routes/invoice';
-import { LightNetworkRepository } from './lnd-facade';
+import { LightningNetworkRepository } from './lnd-facade';
 import { DynamoDbAccountCustodianRepository } from './dynamo';
 import { ConsoleLoggerFactory, Logger } from './logger';
 
@@ -23,7 +23,7 @@ const PORT = 8000;
 
   const lnClient = new LightningNetworkClient();
   const paymentDatastore = new DynamoDbAccountCustodianRepository();
-  const lnRepository = new LightNetworkRepository(lnClient, paymentDatastore);
+  const lnRepository = new LightningNetworkRepository(lnClient, paymentDatastore);
 
   await lnClient.subscribeInvoices();
   lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) =>
