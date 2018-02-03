@@ -4,7 +4,7 @@ import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as expressWsFactory from 'express-ws';
 import { BigNumber } from 'bignumber.js';
-import { RPCLightningNetworkClient, InvoiceStreamingMessage } from './clients/lightning-rpc-client';
+import { RPCLightningNetworkClient, InvoiceStreamingMessage } from './lightning-rpc-client';
 import { invoiceRouterFactory } from './routes/invoice';
 import { LightningNetworkRepository } from './repositories/lnd-repository';
 import { DynamoDbAccountCustodianRepository } from './repositories/account-repository';

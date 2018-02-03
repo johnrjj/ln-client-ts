@@ -3,7 +3,7 @@ import {
   AddInvoiceResponse,
   DecodePayReqResponse,
   LNClient,
-} from '../clients/lightning-rpc-client';
+} from '../lightning-rpc-client';
 import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository } from './account-repository';
 
