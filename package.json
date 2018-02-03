@@ -30,8 +30,10 @@
   },
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
+    "@types/bignumber.js": "^5.0.0",
     "@types/uuid": "^3.4.3",
     "aws-sdk": "^2.188.0",
+    "bignumber.js": "^6.0.0",
     "bytebuffer": "^5.0.1",
     "cors": "^2.8.4",
     "express": "^4.16.2",

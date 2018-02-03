@@ -1,7 +1,21 @@
-import { LightningNetworkClient, AddInvoiceResponse } from "./lightning-repository";
+import {
+  LightningNetworkClient,
+  AddInvoiceResponse,
+  DecodePayReqResponse,
+} from './lightning-client';
+import { AccountCustodianRepository } from './dynamo';
 
 export class LightNetworkRepository {
-  constructor(private lnClient: LightningNetworkClient, private paymentDatastore: any) { }
+  constructor(
+    private lnClient: LightningNetworkClient,
+    private accountRepository: AccountCustodianRepository
+  ) {}
+
+  // Create an account
+  async createAccount() {
+    const account = await this.accountRepository.createAccount();
+    return account;
+  }
 
   // Create invoice
   async createInvoice(amtInSatoshis: number): Promise<AddInvoiceResponse> {
@@ -10,22 +24,25 @@ export class LightNetworkRepository {
   }
 
   // Add money to user account
-  async receiveMoney(x: number): Promise<any> {
-    const dbRes = await this.paymentDatastore.addToBalance(x);
+  async receiveMoney(amtInSatoshis: BigNumber): Promise<any> {
+    const dbRes = await this.accountRepository.addToBalance(amtInSatoshis);
     return dbRes;
   }
 
   // Pays invoice then deducts money from user account
-  async payInvoice(payReq: string): Promise<any> {
+  async payInvoice(payReq: string): Promise<BigNumber> {
     const { destination, num_satoshis, payment_hash } = await this.lnClient.decodePayReq(payReq);
     const payRes = await this.lnClient.payInvoice(payReq);
-    const dbRes = await this.paymentDatastore.deductFromBalance(num_satoshis);
-    return true;
+    const dbRes = await this.accountRepository.deductFromBalance(new BigNumber(num_satoshis));
+    return new BigNumber(num_satoshis);
   }
 
   // Look up existing invoice
-  async decodePayReq(payReq: string) {
+  async decodePayReq(payReq: string): Promise<DecodePayReqResponse> {
     const invoice = await this.lnClient.decodePayReq(payReq);
-    return invoice;
+    return {
+      ...invoice,
+      // num_satoshis invoice.num_satoshis
+    };
   }
 }

@@ -1,43 +1,66 @@
-// var region = "us-west-2";
-// var accessKeyId = process.env.DYNAMODB_ACCESS_KEY_ID;
-// var secretAccessKey = process.env.DYNAMODB_SECRET_ACCESS_KEY;
 import * as AWS from 'aws-sdk';
 import * as uuid from 'uuid/v4';
 import { DynamoDB } from 'aws-sdk';
 AWS.config.update({
-
+  region: 'us-east-1',
 });
 
-const dynamoDb = new DynamoDB.DocumentClient()
+const ACCOUNTS_TABLE_NAME = 'lnd_cust_accounts';
 
-const put = async (): Promise<any> => {
-  const timestamp = new Date().getTime()
-  const data = { foo: 'bar', text: 'foobar' };
-  const params = {
-    TableName: process.env.DYNAMODB_TABLE || 'lnd',
-    Item: {
-      id: uuid(),
-      text: data.text,
-      checked: false,
-      createdAt: timestamp,
-      updatedAt: timestamp
-    }
+const dynamoDb = new DynamoDB.DocumentClient();
+
+export interface AccountDetail {
+  id: string;
+  balance: BigNumber;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface AccountCustodianRepository {
+  createAccount(): Promise<AccountDetail>;
+  addToBalance(satoshis: BigNumber): Promise<number>;
+  deductFromBalance(satoshis: BigNumber): Promise<number>;
+}
+
+export class DynamoDbAccountCustodianRepository implements AccountCustodianRepository {
+  async deductFromBalance(satoshis: BigNumber): Promise<number> {
+    throw new Error('Method not implemented.');
   }
-  return await dynamoDb.put(params).promise();
+
+  async addToBalance(satoshis: BigNumber): Promise<number> {
+    throw new Error('Method not implemented.');
+  }
+
+  async createAccount(): Promise<AccountDetail> {
+    const timestamp = new Date().getTime();
+    const account: AccountDetail = {
+      id: uuid(),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      balance: new BigNumber(0.0000000001),
+    };
+    const params = {
+      TableName: ACCOUNTS_TABLE_NAME,
+      Item: {
+        ...account,
+        balance: account.balance.toString(),
+      },
+    };
+    const res = await dynamoDb.put(params).promise();
+    return account;
+  }
 }
 
 const get = async (id: string): Promise<any> => {
-  const res = await dynamoDb.get(
-    {
+  const res = await dynamoDb
+    .get({
       TableName: 'lnd',
       Key: {
-        'id': '0f59ee40-ca13-4597-a315-c4c8f4196560',
-      }
-    }).promise();
+        id: '0f59ee40-ca13-4597-a315-c4c8f4196560',
+      },
+    })
+    .promise();
 
   console.log(res.Item);
   return res.Item;
-}
-
-
-put().then(x => console.log(x)).catch(e => console.log(e));
+};

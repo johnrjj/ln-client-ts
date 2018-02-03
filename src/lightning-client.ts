@@ -23,7 +23,7 @@ export interface Invoice {
   payment_request: string;
   description_hash: Buffer;
   expiry: string;
-};
+}
 
 export type InvoiceStreamingMessage = Invoice;
 
@@ -45,7 +45,7 @@ export interface GetInfoReponse {
   testnet: boolean;
   chains: Array<string>;
   uris: Array<string>;
-};
+}
 
 export interface SendPaymentResponse {
   payment_error: string;
@@ -54,9 +54,9 @@ export interface SendPaymentResponse {
     total_time_lock: number;
     total_fees: string;
     total_amt: string;
-    hops: Array<any>
-  }
-};
+    hops: Array<any>;
+  };
+}
 
 export interface AddInvoiceResponse {
   r_hash: string;
@@ -104,7 +104,7 @@ export class LightningNetworkClient extends Duplex {
       rpcCall.on('end', () => {
         // The server has finished
         this.emit('ln.sendPayment.end');
-        console.log("(LNDUPLEX):ln.sendPayment.end");
+        console.log('(LNDUPLEX):ln.sendPayment.end');
       });
       rpcCall.write({ payment_request: invoice });
     });
@@ -128,10 +128,12 @@ export class LightningNetworkClient extends Duplex {
     });
   }
 
-  _read() { /* no-op */ }
+  _read() {
+    /* no-op */
+  }
 
   _write(msg: any, encoding: string, callback: () => void): void {
-    console.log('LN duplex _write, recevied msg', msg)
+    console.log('LN duplex _write, recevied msg', msg);
     // Pass the msg on to downstream users
     this.push(msg);
     // switch (msg && msg.type) {
@@ -144,4 +146,3 @@ export class LightningNetworkClient extends Duplex {
     return callback();
   }
 }
-

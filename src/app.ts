@@ -1,35 +1,42 @@
 import * as express from 'express';
 import * as expressLogger from 'morgan';
-import { ConsoleLoggerFactory, Logger } from './logger';
-
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as expressWsFactory from 'express-ws';
-import { LightningNetworkClient, InvoiceStreamingMessage } from './lightning-repository';
+import { BigNumber } from 'bignumber.js';
+import { LightningNetworkClient, InvoiceStreamingMessage } from './lightning-client';
 import { invoiceRouterFactory } from './routes/invoice';
 import { LightNetworkRepository } from './lnd-facade';
+import { DynamoDbAccountCustodianRepository } from './dynamo';
+import { ConsoleLoggerFactory, Logger } from './logger';
+
+BigNumber.config({
+  EXPONENTIAL_AT: 1000,
+});
 
 const PORT = 8000;
 (async () => {
   process.on('unhandledRejection', err => {
     throw err;
   });
-  const logger: Logger = ConsoleLoggerFactory({ level: 'debug' });//config.LOG_LEVEL });
+  const logger: Logger = ConsoleLoggerFactory({ level: 'debug' }); //config.LOG_LEVEL });
 
   const lnClient = new LightningNetworkClient();
-  const paymentDatastore = null;
+  const paymentDatastore = new DynamoDbAccountCustodianRepository();
   const lnRepository = new LightNetworkRepository(lnClient, paymentDatastore);
 
   await lnClient.subscribeInvoices();
-  lnClient.on('ln.subscribeInvoices.data', ((msg: InvoiceStreamingMessage) => console.log('ln.subscribeInvoices.data', msg)))
+  lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) =>
+    console.log('ln.subscribeInvoices.data', msg)
+  );
 
   const app = express();
   const expressWs = expressWsFactory(app);
   app.set('trust proxy', true);
-  app.use('/', express.static(__dirname + '/public'));
   app.use(expressLogger('dev'));
   app.use(helmet());
   app.use(cors());
+  // app.use('/', express.static(__dirname + '/public'));
   app.get('/', (_, res) => res.send('Welcome to the Conduit API'));
   app.get('/healthcheck', (_, res) => res.sendStatus(200));
   app.use('/api/v0', invoiceRouterFactory(lnRepository));
