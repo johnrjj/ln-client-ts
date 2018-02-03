@@ -1,7 +1,7 @@
 import * as bodyParser from 'body-parser';
 import * as qrcode from 'qrcode';
 import { Router } from 'express';
-import { LightningNetworkRepository } from '../lnd-facade';
+import { LightningNetworkRepository } from '../repositories/lnd-repository';
 
 const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
   const router = Router();

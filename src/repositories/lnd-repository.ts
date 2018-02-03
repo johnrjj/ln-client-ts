@@ -1,16 +1,17 @@
 import {
-  LightningNetworkClient,
+  RPCLightningNetworkClient,
   AddInvoiceResponse,
   DecodePayReqResponse,
-} from './lightning-client';
+  LNClient,
+} from '../clients/lightning-rpc-client';
 import { BigNumber } from 'bignumber.js';
-import { AccountCustodianRepository } from './dynamo';
+import { AccountCustodianRepository } from './account-repository';
 
 export class LightningNetworkRepository {
   constructor(
-    private lnClient: LightningNetworkClient,
+    private lnClient: LNClient,
     private accountRepository: AccountCustodianRepository
-  ) {}
+  ) { }
 
   // Create an account
   async createAccount() {
@@ -20,7 +21,7 @@ export class LightningNetworkRepository {
 
   // Create invoice
   async createInvoice(amtInSatoshis: number): Promise<AddInvoiceResponse> {
-    const invoiceRes = await this.lnClient.addInvoice(amtInSatoshis);
+    const invoiceRes = await this.lnClient.addInvoice({ value: amtInSatoshis });
     return invoiceRes;
   }
 
@@ -33,7 +34,7 @@ export class LightningNetworkRepository {
   // Pays invoice then deducts money from user account
   async payInvoice(payReq: string): Promise<BigNumber> {
     const { destination, num_satoshis, payment_hash } = await this.lnClient.decodePayReq(payReq);
-    const payRes = await this.lnClient.payInvoice(payReq);
+    const payRes = await this.lnClient.sendPayment(payReq);
     const dbRes = await this.accountRepository.deductFromBalance(new BigNumber(num_satoshis));
     return new BigNumber(num_satoshis);
   }

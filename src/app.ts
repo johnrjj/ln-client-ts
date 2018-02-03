@@ -4,10 +4,10 @@ import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as expressWsFactory from 'express-ws';
 import { BigNumber } from 'bignumber.js';
-import { LightningNetworkClient, InvoiceStreamingMessage } from './lightning-client';
+import { RPCLightningNetworkClient, InvoiceStreamingMessage } from './clients/lightning-rpc-client';
 import { invoiceRouterFactory } from './routes/invoice';
-import { LightningNetworkRepository } from './lnd-facade';
-import { DynamoDbAccountCustodianRepository } from './dynamo';
+import { LightningNetworkRepository } from './repositories/lnd-repository';
+import { DynamoDbAccountCustodianRepository } from './repositories/account-repository';
 import { ConsoleLoggerFactory, Logger } from './logger';
 
 BigNumber.config({
@@ -21,7 +21,7 @@ const PORT = 8000;
   });
   const logger: Logger = ConsoleLoggerFactory({ level: 'debug' }); //config.LOG_LEVEL });
 
-  const lnClient = new LightningNetworkClient();
+  const lnClient = new RPCLightningNetworkClient();
   const paymentDatastore = new DynamoDbAccountCustodianRepository();
   const lnRepository = new LightningNetworkRepository(lnClient, paymentDatastore);
 

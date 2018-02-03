@@ -5,7 +5,7 @@ import * as byteBuffer from 'bytebuffer';
 import * as caller from 'grpc-caller';
 import { Duplex } from 'stream';
 
-export interface LNClient {
+export interface BaseLNClient {
   addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse>;
   getInfo(opts: any): Promise<any>;
   decodePayReq(opts: any): Promise<DecodePayReqResponse>;
@@ -13,6 +13,9 @@ export interface LNClient {
   sendPayment(opts: any): any;
   subscribeInvoices: any;
 }
+
+export type LNRPCClient = BaseLNClient;
+export type LNClient = BaseLNClient & Duplex;
 
 export interface DecodePayReqResponse {
   destination: string;
@@ -34,7 +37,7 @@ export interface Invoice {
   expiry: string;
 }
 
-type Partial<T> = { [P in keyof T]?: T[P] };
+type Partial<T> = {[P in keyof T]?: T[P]};
 
 export type InvoiceStreamingMessage = Invoice;
 
@@ -74,8 +77,8 @@ export interface AddInvoiceResponse {
   payment_request: string;
 }
 
-export class LightningNetworkClient extends Duplex {
-  client: LNClient;
+export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
+  rpcClient: LNRPCClient;
   constructor() {
     super({ objectMode: true, highWaterMark: 1024 });
 
@@ -84,26 +87,26 @@ export class LightningNetworkClient extends Duplex {
     const credentials = grpc.credentials.createSsl(lndCert);
     const PROTO_PATH = path.resolve(__dirname, '../protos/rpc.proto');
     const client = caller('localhost:10009', PROTO_PATH, 'Lightning', credentials);
-    this.client = client;
+    this.rpcClient = client;
   }
 
   async getInfo(): Promise<GetInfoReponse> {
-    return this.client.getInfo({});
+    return this.rpcClient.getInfo({});
   }
 
   async decodePayReq(payReq: string): Promise<DecodePayReqResponse> {
-    return this.client.decodePayReq({
+    return this.rpcClient.decodePayReq({
       pay_req: payReq,
     });
   }
 
   async lookupInvoice(options: LookupInvoiceRequest): Promise<LookupInvoiceResponse> {
-    return this.client.lookupInvoice({ ...options });
+    return this.rpcClient.lookupInvoice({ ...options });
   }
 
-  async payInvoice(invoice: string): Promise<SendPaymentResponse> {
+  async sendPayment(invoice: string): Promise<SendPaymentResponse> {
     const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
-      const rpcCall = this.client.sendPayment({});
+      const rpcCall = this.rpcClient.sendPayment({});
       rpcCall.on('data', (msg: SendPaymentResponse) => {
         // emit data event
         this.emit('ln.sendPayment.data', msg);
@@ -122,12 +125,13 @@ export class LightningNetworkClient extends Duplex {
     return promise;
   }
 
-  async addInvoice(amountInSatoshis: number): Promise<AddInvoiceResponse> {
-    return this.client.addInvoice({ value: amountInSatoshis });
+  async addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse> {
+    const { memo, value: amountInSatoshis } = opts;
+    return this.rpcClient.addInvoice({ value: amountInSatoshis });
   }
 
   async subscribeInvoices(): Promise<void> {
-    const rpcCall = this.client.subscribeInvoices({});
+    const rpcCall = this.rpcClient.subscribeInvoices({});
     rpcCall.on('data', (msg: InvoiceStreamingMessage) => {
       this.emit('ln.subscribeInvoices.data', msg);
     });
