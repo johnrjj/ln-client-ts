@@ -3,6 +3,8 @@ import * as uuid from 'uuid/v4';
 import { DynamoDB } from 'aws-sdk';
 AWS.config.update({
   region: 'us-east-1',
+  accessKeyId: 'AKIAJHYTHQUJEWSHIEQQ', //process.env.DYNAMODB_ACCESS_KEY_ID;
+  secretAccessKey: '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', //process.env.DYNAMODB_SECRET_ACCESS_KEY
 });
 
 const ACCOUNTS_TABLE_NAME = 'lnd_cust_accounts';
