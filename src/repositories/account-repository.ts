@@ -23,12 +23,13 @@ export interface AccountDetail {
 export interface AccountCustodianRepository {
   createAccount(): Promise<AccountDetail>;
   addToBalance(satoshis: BigNumber): Promise<number>;
-  deductFromBalance(satoshis: BigNumber): Promise<number>;
+  deductFromBalance(accountId: string, amount: BigNumber): Promise<number>;
 }
 
 export class DynamoDbAccountCustodianRepository implements AccountCustodianRepository {
-  async deductFromBalance(satoshis: BigNumber): Promise<number> {
-    throw new Error('Method not implemented.');
+  async deductFromBalance(accountId: string, amount: BigNumber): Promise<number> {
+    console.log(`DEDUCT FROM ${accountId} AMT ${amount.toString()} IN DYNAMO`);
+    return -1;
   }
 
   async addToBalance(satoshis: BigNumber): Promise<number> {

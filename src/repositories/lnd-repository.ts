@@ -8,10 +8,7 @@ import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository } from './account-repository';
 
 export class LightningNetworkRepository {
-  constructor(
-    private lnClient: LNClient,
-    private accountRepository: AccountCustodianRepository
-  ) { }
+  constructor(private lnClient: LNClient, private accountRepository: AccountCustodianRepository) {}
 
   // Create an account
   async createAccount() {
@@ -32,10 +29,13 @@ export class LightningNetworkRepository {
   }
 
   // Pays invoice then deducts money from user account
-  async payInvoice(payReq: string): Promise<BigNumber> {
+  async payInvoice(fundSourceAccountId: string, payReq: string): Promise<BigNumber> {
     const { destination, num_satoshis, payment_hash } = await this.lnClient.decodePayReq(payReq);
     const payRes = await this.lnClient.sendPayment(payReq);
-    const dbRes = await this.accountRepository.deductFromBalance(new BigNumber(num_satoshis));
+    const dbRes = await this.accountRepository.deductFromBalance(
+      fundSourceAccountId,
+      new BigNumber(num_satoshis)
+    );
     return new BigNumber(num_satoshis);
   }
 

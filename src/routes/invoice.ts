@@ -19,15 +19,13 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
     return res.status(201).json(invoice);
   });
 
+  // PAY INVOICE
   router.post('/invoice/:invoice/pay', async (req, res) => {
-    const { invoice } = req.params;
-    const amountPaid = await lnRepository.payInvoice(invoice);
+    const { invoice: invoiceId } = req.params;
+    const { accountId: fundSourceAccountId, invoice } = req.body;
+    const amountPaid = await lnRepository.payInvoice(fundSourceAccountId, invoiceId);
     return res.status(200).json(amountPaid);
   });
-
-  // router.get('/invoices', async (req, res) => {
-  //   // const { ...rest } = req.query;
-  // });
 
   router.get('/invoice/:invoice', async (req, res) => {
     const { invoice } = req.params;
@@ -38,7 +36,7 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
   router.get('/invoice/:invoice/qr.png', async (req, res) => {
     const { invoice } = req.params;
     console.log('hit the invoice qr route hope it works');
-    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => { });
+    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => {});
   });
 
   return router;
