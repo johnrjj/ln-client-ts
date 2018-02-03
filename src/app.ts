@@ -53,6 +53,5 @@ const PORT = 8000;
     res.json({ ...error });
   });
 
-  app.listen(PORT), () => console.log(`Started on port ${PORT}`);
-  console.log('test?');
+  app.listen(PORT, () => console.log(`Started app on ${app.settings.host}:${app.settings.port}`));
 })();
