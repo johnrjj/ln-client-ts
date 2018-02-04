@@ -37,7 +37,7 @@ export interface Invoice {
   expiry: string;
 }
 
-type Partial<T> = { [P in keyof T]?: T[P] };
+type Partial<T> = {[P in keyof T]?: T[P]};
 
 export type InvoiceStreamingMessage = Invoice;
 
@@ -126,8 +126,8 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
   }
 
   async addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse> {
-    const { memo, value: amountInSatoshis } = opts;
-    return this.rpcClient.addInvoice({ value: amountInSatoshis });
+    const { memo, value } = opts; // value = amount in satoshis
+    return this.rpcClient.addInvoice({ value, memo });
   }
 
   async subscribeInvoices(): Promise<void> {
