@@ -22,6 +22,7 @@ export interface AccountDetail {
 
 export interface AccountCustodianRepository {
   createAccount(): Promise<AccountDetail>;
+  getAccount(accountId: string): Promise<AccountDetail | null>;
   addToBalance(satoshis: BigNumber): Promise<number>;
   deductFromBalance(accountId: string, amount: BigNumber): Promise<number>;
 }
@@ -34,6 +35,25 @@ export class DynamoDbAccountCustodianRepository implements AccountCustodianRepos
 
   async addToBalance(satoshis: BigNumber): Promise<number> {
     throw new Error('Method not implemented.');
+  }
+
+  async getAccount(accountId: string): Promise<AccountDetail | null> {
+    const res = await dynamoDb
+      .get({
+        TableName: ACCOUNTS_TABLE_NAME,
+        Key: { id: accountId },
+      })
+      .promise();
+    if (res.Item === undefined) {
+      console.log(`accountId ${accountId} not found, returning null from account repo`);
+      return null;
+    }
+    const { Item } = res;
+    const account = {
+      ...(Item as AccountDetail),
+      balance: new BigNumber(Item.balance),
+    };
+    return account;
   }
 
   async createAccount(): Promise<AccountDetail> {
@@ -56,16 +76,7 @@ export class DynamoDbAccountCustodianRepository implements AccountCustodianRepos
   }
 }
 
-const get = async (id: string): Promise<any> => {
-  const res = await dynamoDb
-    .get({
-      TableName: 'lnd',
-      Key: {
-        id: '0f59ee40-ca13-4597-a315-c4c8f4196560',
-      },
-    })
-    .promise();
-
-  console.log(res.Item);
-  return res.Item;
-};
+// const repo = new DynamoDbAccountCustodianRepository();
+// repo.getAccount('9709e4a2-8f86-4487-8a44-c0c71bcb0196')
+//   .then(x => console.log(x))
+//   .catch(e => console.log(e));

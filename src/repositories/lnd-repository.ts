@@ -5,7 +5,7 @@ import {
   LNClient,
 } from '../lightning-rpc-client';
 import { BigNumber } from 'bignumber.js';
-import { AccountCustodianRepository } from './account-repository';
+import { AccountCustodianRepository, AccountDetail } from './account-repository';
 
 export class LightningNetworkRepository {
   constructor(private lnClient: LNClient, private accountRepository: AccountCustodianRepository) {}
@@ -16,9 +16,17 @@ export class LightningNetworkRepository {
     return account;
   }
 
+  async getAccount(accountId: string): Promise<AccountDetail | null> {
+    const account = await this.accountRepository.getAccount(accountId);
+    return account;
+  }
+
   // Create invoice
-  async createInvoice(amtInSatoshis: number): Promise<AddInvoiceResponse> {
-    const invoiceRes = await this.lnClient.addInvoice({ value: amtInSatoshis });
+  async createInvoice(accountId: string, amtInSatoshis: number): Promise<AddInvoiceResponse> {
+    const invoiceRes = await this.lnClient.addInvoice({
+      value: amtInSatoshis,
+      memo: 'foobar',
+    });
     return invoiceRes;
   }
 
@@ -31,7 +39,12 @@ export class LightningNetworkRepository {
   // Pays invoice then deducts money from user account
   async payInvoice(fundSourceAccountId: string, payReq: string): Promise<BigNumber> {
     const { destination, num_satoshis, payment_hash } = await this.lnClient.decodePayReq(payReq);
-    const payRes = await this.lnClient.sendPayment(payReq);
+    try {
+      const payRes = await this.lnClient.sendPayment(payReq);
+    } catch (e) {
+      console.log('error paying payreq on ln daemon', e);
+      throw e;
+    }
     const dbRes = await this.accountRepository.deductFromBalance(
       fundSourceAccountId,
       new BigNumber(num_satoshis)

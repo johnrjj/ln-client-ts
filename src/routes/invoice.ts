@@ -13,6 +13,12 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
     res.status(201).json(account);
   });
 
+  router.get('/account/:accountId', async (req, res) => {
+    const { accountId } = req.params;
+    const account = await lnRepository.getAccount(accountId);
+    return res.status(200).json(account);
+  });
+
   router.post('/invoice', async (req, res) => {
     const { accountId, satoshis /*currency, amount, description, expiry, metadata */ } = req.body;
     const invoice = await lnRepository.createInvoice(satoshis);
