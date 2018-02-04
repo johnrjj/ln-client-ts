@@ -8,7 +8,7 @@ import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository, AccountDetail } from './account-repository';
 
 export class LightningNetworkRepository {
-  constructor(private lnClient: LNClient, private accountRepository: AccountCustodianRepository) {}
+  constructor(private lnClient: LNClient, private accountRepository: AccountCustodianRepository) { }
 
   // Create an account
   async createAccount() {
@@ -16,6 +16,7 @@ export class LightningNetworkRepository {
     return account;
   }
 
+  // Get account info
   async getAccount(accountId: string): Promise<AccountDetail | null> {
     const account = await this.accountRepository.getAccount(accountId);
     return account;
@@ -25,7 +26,7 @@ export class LightningNetworkRepository {
   async createInvoice(accountId: string, amtInSatoshis: number): Promise<AddInvoiceResponse> {
     const invoiceRes = await this.lnClient.addInvoice({
       value: amtInSatoshis,
-      memo: 'foobar',
+      memo: JSON.stringify({ accountId }),
     });
     return invoiceRes;
   }
