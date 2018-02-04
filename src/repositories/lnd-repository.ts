@@ -8,7 +8,7 @@ import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository, AccountDetail } from './account-repository';
 
 export class LightningNetworkRepository {
-  constructor(private lnClient: LNClient, private accountRepository: AccountCustodianRepository) { }
+  constructor(private lnClient: LNClient, private accountRepository: AccountCustodianRepository) {}
 
   // Create an account
   async createAccount() {

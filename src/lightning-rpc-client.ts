@@ -37,7 +37,7 @@ export interface Invoice {
   expiry: string;
 }
 
-type Partial<T> = {[P in keyof T]?: T[P]};
+type Partial<T> = { [P in keyof T]?: T[P] };
 
 export type InvoiceStreamingMessage = Invoice;
 
