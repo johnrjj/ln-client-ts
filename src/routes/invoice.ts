@@ -21,7 +21,7 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
 
   router.post('/invoice', async (req, res) => {
     const { accountId, satoshis /*currency, amount, description, expiry, metadata */ } = req.body;
-    const invoice = await lnRepository.createInvoice(satoshis);
+    const invoice = await lnRepository.createInvoice(accountId, satoshis);
     return res.status(201).json(invoice);
   });
 
@@ -42,7 +42,7 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
   router.get('/invoice/:invoice/qr.png', async (req, res) => {
     const { invoice } = req.params;
     console.log('hit the invoice qr route hope it works');
-    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => {});
+    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => { });
   });
 
   return router;
