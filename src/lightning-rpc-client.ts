@@ -105,30 +105,37 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
   }
 
   async sendPayment(invoice: string): Promise<SendPaymentResponse> {
-    const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
-      const rpcCall = this.rpcClient.sendPayment({});
-      rpcCall.on('data', (msg: SendPaymentResponse) => {
-        // emit data event
-        this.emit('ln.sendPayment.data', msg);
-        // clean up rpc
-        rpcCall.end();
-        // resolve promise
-        return msg.payment_error !== '' ? reject(msg.payment_error) : accept(msg);
-      });
-      rpcCall.on('end', () => {
-        // The server has finished
-        this.emit('ln.sendPayment.end');
-        console.log('(LNDUPLEX):ln.sendPayment.end');
-      });
-      try {
-        rpcCall.write({ payment_request: invoice });
+    try {
 
-      } catch (e) {
-        console.log('catching the error here', e);
-        return reject(e);
-      }
-    });
-    return promise;
+      const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
+        const rpcCall = this.rpcClient.sendPayment({});
+        rpcCall.on('data', (msg: SendPaymentResponse) => {
+          // emit data event
+          this.emit('ln.sendPayment.data', msg);
+          // clean up rpc
+          rpcCall.end();
+          // resolve promise
+          return msg.payment_error !== '' ? reject(msg.payment_error) : accept(msg);
+        });
+        rpcCall.on('end', () => {
+          // The server has finished
+          this.emit('ln.sendPayment.end');
+          console.log('(LNDUPLEX):ln.sendPayment.end');
+        });
+        try {
+          rpcCall.write({ payment_request: invoice });
+
+        } catch (e) {
+          console.log('catching the error here', e);
+          return reject(e);
+        }
+      });
+
+      return promise;
+    } catch (e) {
+      console.log('wtf', e);
+      throw e;
+    }
   }
 
   async addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse> {
