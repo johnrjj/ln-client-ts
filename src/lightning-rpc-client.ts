@@ -124,7 +124,7 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
           this.emit('ln.sendPayment.end');
           console.log('(LNDUPLEX):ln.sendPayment.end');
         });
-        rpcCall.on('error', (e: any) => { console.log(e) });
+        rpcCall.on('error', (e: any) => { console.log(`this is the rpcCall.on('error')`, e) });
 
         try {
           console.log('calling write');
