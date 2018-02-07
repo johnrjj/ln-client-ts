@@ -111,6 +111,7 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
         const rpcCall = this.rpcClient.sendPayment({});
         rpcCall.on('data', (msg: SendPaymentResponse) => {
           // emit data event
+          console.log('data', msg);
           this.emit('ln.sendPayment.data', msg);
           // clean up rpc
           rpcCall.end();
@@ -118,12 +119,16 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
           return msg.payment_error !== '' ? reject(msg.payment_error) : accept(msg);
         });
         rpcCall.on('end', () => {
+          console.log('end');
           // The server has finished
           this.emit('ln.sendPayment.end');
           console.log('(LNDUPLEX):ln.sendPayment.end');
         });
+        rpcCall.on('error', (e: any) => { console.log(e) });
+
         try {
-          rpcCall.write({ payment_request: invoice });
+          console.log('calling write');
+          rpcCall.write({ payment_request: invoice }, ((err: any, res: any) => console.log(err, res)));
 
         } catch (e) {
           console.log('catching the error here', e);
