@@ -105,42 +105,36 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
   }
 
   async sendPayment(invoice: string): Promise<SendPaymentResponse> {
-    try {
-
-      const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
-        const rpcCall = this.rpcClient.sendPayment({});
-        rpcCall.on('data', (msg: SendPaymentResponse) => {
-          // emit data event
-          console.log('data', msg);
-          this.emit('ln.sendPayment.data', msg);
-          // clean up rpc
-          rpcCall.end();
-          // resolve promise
-          return msg.payment_error !== '' ? reject(msg.payment_error) : accept(msg);
-        });
-        rpcCall.on('end', () => {
-          console.log('end');
-          // The server has finished
-          this.emit('ln.sendPayment.end');
-          console.log('(LNDUPLEX):ln.sendPayment.end');
-        });
-        rpcCall.on('error', (e: any) => { console.log(`this is the rpcCall.on('error')`, e) });
-
-        try {
-          console.log('calling write');
-          rpcCall.write({ payment_request: invoice }, ((err: any, res: any) => console.log(err, res)));
-
-        } catch (e) {
-          console.log('catching the error here', e);
-          return reject(e);
-        }
+    const promise: Promise<SendPaymentResponse> = new Promise((accept, reject) => {
+      const rpcCall = this.rpcClient.sendPayment({});
+      rpcCall.on('data', (msg: SendPaymentResponse) => {
+        // emit data event
+        console.log('data', msg);
+        this.emit('ln.sendPayment.data', msg);
+        // clean up rpc
+        rpcCall.end();
+        // resolve promise
+        return msg.payment_error !== '' ? reject(msg.payment_error) : accept(msg);
       });
-
-      return promise;
-    } catch (e) {
-      console.log('wtf', e);
-      throw e;
-    }
+      rpcCall.on('end', () => {
+        console.log('end');
+        // The server has finished
+        this.emit('ln.sendPayment.end');
+        console.log('(LNDUPLEX):ln.sendPayment.end');
+      });
+      rpcCall.on('error', (e: any) => {
+        console.log(`this is the rpcCall.on('error')`, e);
+        return reject(e);
+      });
+      try {
+        console.log('calling write');
+        rpcCall.write({ payment_request: invoice }, ((err: any, res: any) => console.log(err, res)));
+      } catch (e) {
+        console.log('error calling pay rpcCall.write', e);
+        return reject(e);
+      }
+    });
+    return promise;
   }
 
   async addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse> {
