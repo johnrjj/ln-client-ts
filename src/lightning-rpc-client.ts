@@ -37,7 +37,7 @@ export interface Invoice {
   expiry: string;
 }
 
-type Partial<T> = { [P in keyof T]?: T[P] };
+type Partial<T> = {[P in keyof T]?: T[P]};
 
 export type InvoiceStreamingMessage = Invoice;
 
@@ -120,7 +120,13 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
         this.emit('ln.sendPayment.end');
         console.log('(LNDUPLEX):ln.sendPayment.end');
       });
-      rpcCall.write({ payment_request: invoice });
+      try {
+        rpcCall.write({ payment_request: invoice });
+
+      } catch (e) {
+        console.log('catching the error here', e);
+        return reject(e);
+      }
     });
     return promise;
   }
