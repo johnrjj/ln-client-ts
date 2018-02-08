@@ -3,6 +3,7 @@ import {
   AddInvoiceResponse,
   DecodePayReqResponse,
   LNClient,
+  SendPaymentResponse,
 } from '../lightning-rpc-client';
 import { BigNumber } from 'bignumber.js';
 import { AccountCustodianRepository, AccountDetail } from './account-repository';
@@ -38,10 +39,11 @@ export class LightningNetworkRepository {
   }
 
   // Pays invoice then deducts money from user account
-  async payInvoice(fundSourceAccountId: string, payReq: string): Promise<BigNumber> {
+  async payInvoice(fundSourceAccountId: string, payReq: string): Promise<SendPaymentResponse> {
     const { destination, num_satoshis, payment_hash } = await this.lnClient.decodePayReq(payReq);
+    let payRes: SendPaymentResponse | null = null;
     try {
-      const payRes = await this.lnClient.sendPayment(payReq);
+      payRes = await this.lnClient.sendPayment(payReq);
     } catch (e) {
       console.log('error paying payreq on ln daemon', e);
       throw e;
@@ -50,7 +52,8 @@ export class LightningNetworkRepository {
       fundSourceAccountId,
       new BigNumber(num_satoshis)
     );
-    return new BigNumber(num_satoshis);
+    return payRes;
+    // return new BigNumber(num_satoshis);
   }
 
   // Look up existing invoice

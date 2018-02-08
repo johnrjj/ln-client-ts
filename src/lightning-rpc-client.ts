@@ -10,11 +10,20 @@ export interface BaseLNClient {
   getInfo(opts: any): Promise<any>;
   decodePayReq(opts: any): Promise<DecodePayReqResponse>;
   lookupInvoice(opts: any): Promise<any>;
+  sendPayment(opts: any): Promise<SendPaymentResponse>;
+  subscribeInvoices: any;
+}
+
+export interface LNRPCClient {
+  addInvoice(opts: Partial<Invoice>): Promise<AddInvoiceResponse>;
+  getInfo(opts: any): Promise<any>;
+  decodePayReq(opts: any): Promise<DecodePayReqResponse>;
+  lookupInvoice(opts: any): Promise<any>;
   sendPayment(opts: any): any;
   subscribeInvoices: any;
 }
 
-export type LNRPCClient = BaseLNClient;
+// export type LNRPCClient = BaseLNClient;
 export type LNClient = BaseLNClient & Duplex;
 
 export interface DecodePayReqResponse {
@@ -37,7 +46,7 @@ export interface Invoice {
   expiry: string;
 }
 
-type Partial<T> = {[P in keyof T]?: T[P]};
+type Partial<T> = { [P in keyof T]?: T[P] };
 
 export type InvoiceStreamingMessage = Invoice;
 
@@ -128,7 +137,7 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
       });
       try {
         console.log('calling write');
-        rpcCall.write({ payment_request: invoice }, ((err: any, res: any) => console.log(err, res)));
+        rpcCall.write({ payment_request: invoice }, (err: any, res: any) => console.log(err, res));
       } catch (e) {
         console.log('error calling pay rpcCall.write', e);
         return reject(e);

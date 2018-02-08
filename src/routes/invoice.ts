@@ -67,8 +67,11 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
 
     // todo: verify user has enough in balance to pay
     try {
-      const amountPaid = await lnRepository.payInvoice(fundSourceAccountId, invoiceId);
-      return res.status(200).json(amountPaid);
+      const payResponse = await lnRepository.payInvoice(fundSourceAccountId, invoiceId);
+      if (payResponse.payment_error) {
+        console.log('had an error paying but had a success code', payResponse.payment_error);
+      }
+      return res.status(200).json(payResponse);
     } catch (e) {
       return res.status(500).json({ error: e });
     }
@@ -87,7 +90,7 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
   router.get('/invoice/:invoice/qr.png', async (req, res) => {
     const { invoice } = req.params;
     console.log('hit the invoice qr route hope it works');
-    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => { });
+    return qrcode.toFileStream(res.type('png'), `lightning:${invoice}`.toUpperCase(), () => {});
   });
 
   return router;
