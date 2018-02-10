@@ -9,6 +9,7 @@ import { invoiceRouterFactory } from './routes/invoice';
 import { LightningNetworkRepository } from './repositories/lnd-repository';
 import { DynamoDbAccountCustodianRepository } from './repositories/account-repository';
 import { ConsoleLoggerFactory, Logger } from './logger';
+import { WebSocketNode } from './websocket';
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
@@ -32,6 +33,7 @@ const PORT = 8000;
 
   const app = express();
   const expressWs = expressWsFactory(app);
+  const wss = expressWs.getWss('/ws');
   app.set('trust proxy', true);
   app.use(expressLogger('dev'));
   app.use(helmet());
@@ -40,6 +42,13 @@ const PORT = 8000;
   app.get('/', (_, res) => res.send('Welcome to the Conduit API'));
   app.get('/healthcheck', (_, res) => res.sendStatus(200));
   app.use('/api/v0', invoiceRouterFactory(lnRepository));
+  const webSocketNode = new WebSocketNode({
+    wss,
+    lnClient,
+  });
+  (app as any).ws('/ws', (ws: any, req: any, next: any) =>
+    webSocketNode.connectionHandler(ws, req, next)
+  );
 
   // 404 handler
   app.use((req, res, next) => {
