@@ -137,7 +137,9 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
       });
       try {
         console.log('calling write');
-        rpcCall.write({ payment_request: invoice }, (err: any, res: any) => console.log(err, res));
+        rpcCall.write({ payment_request: invoice }, (err: any, res: any) =>
+          console.log('this is a callback, followed by error and res', err, res)
+        );
       } catch (e) {
         console.log('error calling pay rpcCall.write', e);
         return reject(e);

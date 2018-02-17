@@ -3,6 +3,7 @@ import * as expressLogger from 'morgan';
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as expressWsFactory from 'express-ws';
+import * as Raven from 'raven';
 import { BigNumber } from 'bignumber.js';
 import { RPCLightningNetworkClient, InvoiceStreamingMessage } from './lightning-rpc-client';
 import { invoiceRouterFactory } from './routes/invoice';
@@ -20,6 +21,7 @@ const PORT = 8000;
   process.on('unhandledRejection', err => {
     throw err;
   });
+
   const logger: Logger = ConsoleLoggerFactory({ level: 'debug' }); //config.LOG_LEVEL });
 
   const lnClient = new RPCLightningNetworkClient();
@@ -32,6 +34,9 @@ const PORT = 8000;
   );
 
   const app = express();
+  Raven.config('__DSN__').install();
+  app.use(Raven.requestHandler());
+
   const expressWs = expressWsFactory(app);
   const wss = expressWs.getWss('/ws');
   app.set('trust proxy', true);
@@ -51,6 +56,10 @@ const PORT = 8000;
   );
 
   // 404 handler
+
+  // The error handler must be before any other error middleware
+  app.use(Raven.errorHandler());
+
   app.use((req, res, next) => {
     const err = new Error('Not Found') as any;
     err.status = 404;
@@ -59,6 +68,7 @@ const PORT = 8000;
 
   app.use((error: any, req: any, res: any, next: any) => {
     res.status(error.status || 500);
+    console.log(res.sentry);
     res.json({ ...error });
   });
 

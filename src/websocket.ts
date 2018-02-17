@@ -29,9 +29,11 @@ export class WebSocketNode {
     this.lnClient = lnClient;
 
     this.connections = new Set();
-    lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) =>
-      console.log('websocket server, message received from rpc client', msg)
-    );
+    lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) => {
+      console.log('websocket server, message received from rpc client', msg);
+      this.onInvoiceUpdate(msg);
+    });
+
     this.log('verbose', `WebSocket node subscribed to LN Client subscription updates`);
     // const orderAddedSubId = this.subscriber.subscribe(
     //   ORDER_ADDED,
@@ -69,23 +71,29 @@ export class WebSocketNode {
     this.connections.add(connectionContext);
   }
 
-  // private onOrderAddOrUpdateEvent(orderAddEvent: OrderEvent<OrderAdded | OrderUpdated>) {
-  //   const { baseTokenAddress, quoteTokenAddress } = orderAddEvent.payload;
-  //   const subscriptionChannel = `${baseTokenAddress}-${quoteTokenAddress}`;
+  private onInvoiceUpdate(invoicePayReceipt: InvoiceStreamingMessage) {
+    console.log('inside invoice update websocket', invoicePayReceipt);
+    const { id } = JSON.parse(invoicePayReceipt.memo);
+    console.log('foudn payment for ', id);
 
-  //   this.connections.forEach(connection => {
-  //     if (connection.subscriptions.find(s => s === subscriptionChannel)) {
-  //       const channelId = connection.subscriptionIdMap.get(subscriptionChannel) || 0;
-  //       const message: WebSocketMessage<OrderbookUpdate> = {
-  //         type: 'update',
-  //         channel: 'orderbook',
-  //         channelId,
-  //         payload: serializeSignedOrder(orderAddEvent.payload.order),
-  //       };
-  //       this.sendMessage(connection, message);
-  //     }
-  //   });
-  // }
+    if (!id) {
+      console.log(`id not found inside memo`);
+      return;
+    }
+    const subscriptionChannel = `${id}`;
+    this.connections.forEach(connection => {
+      if (connection.subscriptions.find(s => s === subscriptionChannel)) {
+        const channelId = connection.subscriptionIdMap.get(subscriptionChannel) || 0;
+        const message: WebSocketMessage<any> = {
+          type: 'update',
+          channel: 'orderbook',
+          channelId,
+          payload: invoicePayReceipt,
+        };
+        this.sendMessage(connection, message);
+      }
+    });
+  }
 
   private onMessageFromClientSocket(connectionContext: ConnectionContext) {
     return (message: any) => {
@@ -107,7 +115,7 @@ export class WebSocketNode {
       }
 
       this.log('verbose', 'WebSocket server received message from a client WebSocket', message);
-      let data = { type: 'default' };
+      let data = { type: 'unknown' };
       try {
         data = JSON.parse(message.toString());
       } catch {
@@ -141,8 +149,8 @@ export class WebSocketNode {
     subscriptionRequest: WebSocketMessage<any>
   ) {
     const { channel, type, payload } = subscriptionRequest;
-    const { baseTokenAddress, quoteTokenAddress, limit, snapshot: snapshotRequested } = payload;
-    const subscriptionChannel = `${baseTokenAddress}-${quoteTokenAddress}`;
+    const { id } = payload;
+    const subscriptionChannel = id;
     const channelId = context.subscriptionCount++;
     context.subscriptionIdMap.set(subscriptionChannel, channelId);
     context.subscriptions.push(subscriptionChannel);

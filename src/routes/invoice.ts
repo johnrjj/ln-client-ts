@@ -45,6 +45,7 @@ const invoiceRouterFactory = (lnRepository: LightningNetworkRepository) => {
       return res.status(400).json({ error: 'missing satoshis field' });
     }
     try {
+      console.log(`creating invoice for ${accountId} for ${satoshis} satoshis`);
       const invoice = await lnRepository.createInvoice(accountId, satoshis);
       return res.status(201).json(invoice);
     } catch (e) {
