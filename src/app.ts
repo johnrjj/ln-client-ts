@@ -12,6 +12,7 @@ import { DynamoDbAccountCustodianRepository } from './repositories/account-repos
 import { ConsoleLoggerFactory, Logger } from './logger';
 import { WebSocketNode } from './websocket';
 
+const DSN = 'https://eb6b4b896bc648a097e4c5282353180c:e5271223b49e422a842aaea732832f62@sentry.io/289902';
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
 });
@@ -34,7 +35,7 @@ const PORT = 8000;
   );
 
   const app = express();
-  Raven.config('__DSN__').install();
+  Raven.config(DSN).install();
   app.use(Raven.requestHandler());
 
   const expressWs = expressWsFactory(app);
