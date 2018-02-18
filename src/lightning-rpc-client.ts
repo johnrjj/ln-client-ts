@@ -131,7 +131,6 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
       });
       rpcCall.on('end', () => {
         console.log('end');
-        // The server has finished
         this.emit('ln.sendPayment.end');
         console.log('(LNDUPLEX):ln.sendPayment.end');
       });
@@ -141,10 +140,13 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
       });
       try {
         console.log('calling write');
-        rpcCall.write({ payment_request: invoice });
-        // rpcCall.write({ payment_request: invoice }, (err: any, res: any) =>
-        //   console.log('this is a callback, followed by error and res', err, res)
-        // );
+        // rpcCall.write({ payment_request: invoice });
+        rpcCall.write({ payment_request: invoice }, (err: any, res: any) => {
+          console.log('this is a callback, followed by error and res', err, res)
+          if (err) {
+            reject(err);
+          }
+        });
       } catch (e) {
         console.log('error calling pay rpcCall.write', e);
         return reject(e);

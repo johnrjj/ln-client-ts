@@ -35,6 +35,25 @@ export class DynamoDbAccountCustodianRepository implements AccountCustodianRepos
   }
 
   async addToBalance(accountId: string, amount: BigNumber): Promise<number> {
+    const account = await this.getAccount(accountId);
+    if (!account) {
+      throw new Error('Can not find account');
+    }
+    const { balance } = account;
+    const updatedBalance = balance.plus(amount).toFixed(8);
+    const res = await dynamoDb.update({
+      TableName: ACCOUNTS_TABLE_NAME,
+      Key: { id: accountId },
+      UpdateExpression: "set balance= :b",
+      ExpressionAttributeValues:{
+        ":b": updatedBalance, 
+      },
+      ReturnValues:"UPDATED_NEW"
+    }).promise();
+
+    console.log(res);
+    console.log(JSON.stringify(res));
+    // const balance = new 
     console.log(`ADD TO ${accountId} AMT ${amount.toString()} IN DYNAMO`);
     return -1;
   }
