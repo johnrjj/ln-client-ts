@@ -2,8 +2,8 @@ import * as WebSocket from 'ws';
 import { Request, NextFunction } from 'express';
 import { RPCLightningNetworkClient, InvoiceStreamingMessage } from './lightning-rpc-client';
 
-export type MessageType = 'update' | 'snapshot' | 'fill' | 'keepalive';
-export type ChannelType = 'orderbook' | 'keepalive';
+export type MessageType = 'update' | 'keepalive';
+export type ChannelType = 'invoice' | 'keepalive';
 export interface WebSocketMessage<T extends Object> {
   type: MessageType;
   channel: ChannelType;
@@ -81,12 +81,15 @@ export class WebSocketNode {
       return;
     }
     const subscriptionChannel = `${id}`;
+    console.log('checking to see if anyone cares about invoice update and is subscribed');
+    console.log(this);
     this.connections.forEach(connection => {
       if (connection.subscriptions.find(s => s === subscriptionChannel)) {
+        console.log('found consumer that is interested in', id);
         const channelId = connection.subscriptionIdMap.get(subscriptionChannel) || 0;
         const message: WebSocketMessage<any> = {
           type: 'update',
-          channel: 'orderbook',
+          channel: 'invoice',
           channelId,
           payload: invoicePayReceipt,
         };
@@ -150,6 +153,7 @@ export class WebSocketNode {
   ) {
     const { channel, type, payload } = subscriptionRequest;
     const { id } = payload;
+    console.log(`subscribing client to ${id}`);
     const subscriptionChannel = id;
     const channelId = context.subscriptionCount++;
     context.subscriptionIdMap.set(subscriptionChannel, channelId);
