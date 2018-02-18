@@ -33,8 +33,8 @@ export class LightningNetworkRepository {
   }
 
   // Add money to user account
-  async receiveMoney(amtInSatoshis: BigNumber): Promise<any> {
-    const dbRes = await this.accountRepository.addToBalance(amtInSatoshis);
+  async receiveMoney(accountId: string, amtInSatoshis: BigNumber): Promise<any> {
+    const dbRes = await this.accountRepository.addToBalance(accountId, amtInSatoshis);
     return dbRes;
   }
 

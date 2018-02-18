@@ -9,6 +9,7 @@ AWS.config.update({
   secretAccessKey: 'lZ4bKx+fUm5pLVJx9cbu8ioTO6DK+BhRepf2NqDZ', //process.env.DYNAMODB_SECRET_ACCESS_KEY
 });
 
+
 const ACCOUNTS_TABLE_NAME = 'lnd_cust_accounts';
 
 const dynamoDb = new DynamoDB.DocumentClient();
@@ -23,7 +24,7 @@ export interface AccountDetail {
 export interface AccountCustodianRepository {
   createAccount(): Promise<AccountDetail>;
   getAccount(accountId: string): Promise<AccountDetail | null>;
-  addToBalance(satoshis: BigNumber): Promise<number>;
+  addToBalance(accountId: string, amount: BigNumber): Promise<number>;
   deductFromBalance(accountId: string, amount: BigNumber): Promise<number>;
 }
 
@@ -33,8 +34,9 @@ export class DynamoDbAccountCustodianRepository implements AccountCustodianRepos
     return -1;
   }
 
-  async addToBalance(satoshis: BigNumber): Promise<number> {
-    throw new Error('Method not implemented.');
+  async addToBalance(accountId: string, amount: BigNumber): Promise<number> {
+    console.log(`ADD TO ${accountId} AMT ${amount.toString()} IN DYNAMO`);
+    return -1;
   }
 
   async getAccount(accountId: string): Promise<AccountDetail | null> {
@@ -62,7 +64,7 @@ export class DynamoDbAccountCustodianRepository implements AccountCustodianRepos
       id: uuid(),
       createdAt: timestamp,
       updatedAt: timestamp,
-      balance: new BigNumber(0.0000000001),
+      balance: new BigNumber(0.00000010),
     };
     const params = {
       TableName: ACCOUNTS_TABLE_NAME,

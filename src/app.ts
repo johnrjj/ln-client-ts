@@ -31,9 +31,14 @@ const PORT = 8000;
   const lnRepository = new LightningNetworkRepository(lnClient, paymentDatastore);
 
   await lnClient.subscribeInvoices();
-  lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) =>
+  lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) => {
     console.log('ln.subscribeInvoices.data', msg)
-  );
+    const { accountId } = JSON.parse(msg.memo);
+    if (!accountId) {
+      return;
+    }
+    lnRepository.receiveMoney(accountId, new BigNumber(String(msg.value)));
+  });
 
   const app = express();
   Raven.config(DSN).install();
