@@ -46,9 +46,13 @@ export interface Invoice {
   expiry: string;
 }
 
-type Partial<T> = { [P in keyof T]?: T[P] };
+export type Partial<T> = { [P in keyof T]?: T[P] };
 
 export type InvoiceStreamingMessage = Invoice;
+
+export interface MemoPayload {
+  accountId: string;
+};
 
 export interface LookupInvoiceRequest {
   r_hash_str?: string;
