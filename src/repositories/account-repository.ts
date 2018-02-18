@@ -9,7 +9,6 @@ AWS.config.update({
   secretAccessKey: 'lZ4bKx+fUm5pLVJx9cbu8ioTO6DK+BhRepf2NqDZ', //process.env.DYNAMODB_SECRET_ACCESS_KEY
 });
 
-
 const ACCOUNTS_TABLE_NAME = 'lnd_cust_accounts';
 
 const dynamoDb = new DynamoDB.DocumentClient();
@@ -24,38 +23,59 @@ export interface AccountDetail {
 export interface AccountCustodianRepository {
   createAccount(): Promise<AccountDetail>;
   getAccount(accountId: string): Promise<AccountDetail | null>;
-  addToBalance(accountId: string, amount: BigNumber): Promise<number>;
-  deductFromBalance(accountId: string, amount: BigNumber): Promise<number>;
+  addToBalance(accountId: string, amount: BigNumber): Promise<BigNumber>;
+  deductFromBalance(accountId: string, amount: BigNumber): Promise<BigNumber>;
 }
 
 export class DynamoDbAccountCustodianRepository implements AccountCustodianRepository {
-  async deductFromBalance(accountId: string, amount: BigNumber): Promise<number> {
-    console.log(`DEDUCT FROM ${accountId} AMT ${amount.toString()} IN DYNAMO`);
-    return -1;
-  }
-
-  async addToBalance(accountId: string, amount: BigNumber): Promise<number> {
+  async deductFromBalance(accountId: string, amountToDeductInBtc: BigNumber): Promise<BigNumber> {
+    console.log(`Attempingt to deduct ${amountToDeductInBtc} from ${accountId}`);
     const account = await this.getAccount(accountId);
     if (!account) {
       throw new Error('Can not find account');
     }
     const { balance } = account;
-    const updatedBalance = balance.plus(amount).toFixed(8);
-    const res = await dynamoDb.update({
-      TableName: ACCOUNTS_TABLE_NAME,
-      Key: { id: accountId },
-      UpdateExpression: "set balance= :b",
-      ExpressionAttributeValues:{
-        ":b": updatedBalance, 
-      },
-      ReturnValues:"UPDATED_NEW"
-    }).promise();
+    const updatedBalance = balance.minus(amountToDeductInBtc);
+    if (updatedBalance.isLessThan(new BigNumber(0))) {
+      throw new Error('Insufficient balance');
+    }
+    const res = await dynamoDb
+      .update({
+        TableName: ACCOUNTS_TABLE_NAME,
+        Key: { id: accountId },
+        UpdateExpression: 'set balance= :b',
+        ExpressionAttributeValues: {
+          ':b': updatedBalance.toFixed(8),
+        },
+        ReturnValues: 'UPDATED_NEW',
+      })
+      .promise();
 
-    console.log(res);
-    console.log(JSON.stringify(res));
-    // const balance = new 
-    console.log(`ADD TO ${accountId} AMT ${amount.toString()} IN DYNAMO`);
-    return -1;
+    console.log(res); // { Attributes: { balance: '0.00000015' } }
+    return updatedBalance;
+  }
+
+  async addToBalance(accountId: string, amountToAddInBtc: BigNumber): Promise<BigNumber> {
+    const account = await this.getAccount(accountId);
+    if (!account) {
+      throw new Error('Can not find account');
+    }
+    const { balance } = account;
+    const updatedBalance = balance.plus(amountToAddInBtc);
+    const res = await dynamoDb
+      .update({
+        TableName: ACCOUNTS_TABLE_NAME,
+        Key: { id: accountId },
+        UpdateExpression: 'set balance= :b',
+        ExpressionAttributeValues: {
+          ':b': updatedBalance.toFixed(8),
+        },
+        ReturnValues: 'UPDATED_NEW',
+      })
+      .promise();
+
+    console.log(res); // { Attributes: { balance: '0.00000015' } }
+    return updatedBalance;
   }
 
   async getAccount(accountId: string): Promise<AccountDetail | null> {
@@ -83,7 +103,7 @@ export class DynamoDbAccountCustodianRepository implements AccountCustodianRepos
       id: uuid(),
       createdAt: timestamp,
       updatedAt: timestamp,
-      balance: new BigNumber(0.00000010),
+      balance: new BigNumber(0.0000001),
     };
     const params = {
       TableName: ACCOUNTS_TABLE_NAME,

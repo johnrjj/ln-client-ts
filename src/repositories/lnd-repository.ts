@@ -48,12 +48,11 @@ export class LightningNetworkRepository {
       console.log('error paying payreq on ln daemon', e);
       throw e;
     }
-    const dbRes = await this.accountRepository.deductFromBalance(
+    const remainingBalance = await this.accountRepository.deductFromBalance(
       fundSourceAccountId,
-      new BigNumber(num_satoshis)
+      new BigNumber(num_satoshis).div(100000000)
     );
     return payRes;
-    // return new BigNumber(num_satoshis);
   }
 
   // Look up existing invoice

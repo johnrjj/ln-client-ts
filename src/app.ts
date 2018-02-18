@@ -12,11 +12,11 @@ import { DynamoDbAccountCustodianRepository } from './repositories/account-repos
 import { ConsoleLoggerFactory, Logger } from './logger';
 import { WebSocketNode } from './websocket';
 
-const DSN = 'https://eb6b4b896bc648a097e4c5282353180c:e5271223b49e422a842aaea732832f62@sentry.io/289902';
+const DSN =
+  'https://eb6b4b896bc648a097e4c5282353180c:e5271223b49e422a842aaea732832f62@sentry.io/289902';
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
 });
-
 
 const PORT = 8000;
 (async () => {
@@ -32,7 +32,7 @@ const PORT = 8000;
 
   await lnClient.subscribeInvoices();
   lnClient.on('ln.subscribeInvoices.data', (msg: InvoiceStreamingMessage) => {
-    console.log('ln.subscribeInvoices.data', msg)
+    console.log('ln.subscribeInvoices.data', msg);
     const { accountId } = JSON.parse(msg.memo);
     if (!accountId) {
       return;

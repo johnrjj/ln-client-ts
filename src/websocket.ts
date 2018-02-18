@@ -1,6 +1,10 @@
 import * as WebSocket from 'ws';
 import { Request, NextFunction } from 'express';
-import { RPCLightningNetworkClient, InvoiceStreamingMessage, MemoPayload } from './lightning-rpc-client';
+import {
+  RPCLightningNetworkClient,
+  InvoiceStreamingMessage,
+  MemoPayload,
+} from './lightning-rpc-client';
 
 export type MessageType = 'update' | 'keepalive';
 export type ChannelType = 'invoice' | 'keepalive';
@@ -79,7 +83,7 @@ export class WebSocketNode {
       console.log(`id not found inside memo`);
       return;
     }
-    
+
     const subscriptionChannel = `${id}`;
     console.log('checking to see if anyone cares about invoice update and is subscribed');
     console.log(this);

@@ -52,7 +52,7 @@ export type InvoiceStreamingMessage = Invoice;
 
 export interface MemoPayload {
   accountId: string;
-};
+}
 
 export interface LookupInvoiceRequest {
   r_hash_str?: string;
@@ -142,7 +142,7 @@ export class RPCLightningNetworkClient extends Duplex implements BaseLNClient {
         console.log('calling write');
         // rpcCall.write({ payment_request: invoice });
         rpcCall.write({ payment_request: invoice }, (err: any, res: any) => {
-          console.log('this is a callback, followed by error and res', err, res)
+          console.log('this is a callback, followed by error and res', err, res);
           if (err) {
             reject(err);
           }
