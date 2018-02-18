@@ -37,7 +37,9 @@ const PORT = 8000;
     if (!accountId) {
       return;
     }
-    lnRepository.receiveMoney(accountId, new BigNumber(String(msg.value)));
+    const { value: amountReceivedInSatoshis } = msg;
+    const amountReceivedInBtc = new BigNumber(String(amountReceivedInSatoshis)).div(100000000);
+    lnRepository.receiveMoney(accountId, amountReceivedInBtc);
   });
 
   const app = express();
